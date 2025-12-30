@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CineMatch - Movie Recommendation App
 
-## Getting Started
+A modern, responsive movie discovery and recommendation platform built with Next.js, TypeScript, and Tailwind CSS.
 
-First, run the development server:
+## 🎬 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### 🎯 Core Functionality
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+-   **Movie Discovery**: Browse and search through an extensive collection of movies
+-   **Advanced Search**: Filter movies by title, language, and multiple criteria
+-   **Personalized Recommendations**: Get AI-powered movie suggestions based on your preferences
+-   **User Authentication**: Secure login/signup system with session management
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### ❤️ Interactive Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+-   **Like Movies**: Build your taste profile by liking favorite movies
+-   **Watchlist Management**: Save movies to watch later
+-   **Responsive Design**: Optimized for mobile, tablet, and desktop experiences
 
-## Learn More
+### 🎨 User Experience
 
-To learn more about Next.js, take a look at the following resources:
+-   **Mobile-First Design**: Touch-friendly interfaces with proper icon placement
+-   **Dark Mode Support**: Seamless light/dark theme switching
+-   **Smooth Animations**: Engaging micro-interactions and transitions
+-   **Accessibility**: WCAG-compliant contrast ratios and keyboard navigation
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🚀 Tech Stack
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+-   **Frontend**: Next.js 14 with App Router
+-   **Language**: TypeScript for type safety
+-   **Styling**: Tailwind CSS for responsive design
+-   **Animations**: Framer Motion for smooth transitions
+-   **Icons**: Lucide React for consistent iconography
+-   **State Management**: React Context for global state
 
-## Deploy on Vercel
+## 🛠️ Development
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Prerequisites
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+-   Node.js 18+
+-   npm, yarn, or pnpm
+
+### Getting Started
+
+1. **Clone the repository**
+
+    ```bash
+    git clone <repository-url>
+    cd cinematch
+    ```
+
+2. **Install dependencies**
+
+    ```bash
+    npm install
+    # or
+    yarn install
+    # or
+    pnpm install
+    ```
+
+3. **Start development server**
+
+    ```bash
+    npm run dev
+    # or
+    yarn dev
+    # or
+    pnpm dev
+    ```
+
+4. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## 🎯 Key Features Deep Dive
+
+### Smart Recommendations
+
+-   **Preference Learning**: System learns from your liked movies
+-   **Genre Analysis**: Understands your preferred movie genres
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🔗 Links
+
+-   **Live Demo**: [Your deployed application URL]
+
+---
+
+Built with ❤️ for movie enthusiasts everywhere.
