@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { Loader2, Sparkles, Film, ChevronDown } from "lucide-react";
 import MovieCard from "@/components/MovieCard";
 import { useAuth } from "@/src/context/AuthContext";
-import { languages } from "@/src/utils/common";
+import { languages, genres } from "@/src/utils/common";
 
 type Recommendation = {
 	id: number;
@@ -37,6 +37,37 @@ const RecommendationsPage = () => {
 	const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
 	const [tempSelectedLanguages, setTempSelectedLanguages] = useState<string[]>([]);
 	const languageDropdownRef = useRef<HTMLDivElement>(null);
+	const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
+	const [isGenreDropdownOpen, setIsGenreDropdownOpen] = useState(false);
+	const [tempSelectedGenres, setTempSelectedGenres] = useState<number[]>([]);
+	const genreDropdownRef = useRef<HTMLDivElement>(null);
+	const [preferencesLoaded, setPreferencesLoaded] = useState(false);
+
+	// Load saved preferences from localStorage on mount
+	useEffect(() => {
+		try {
+			const savedLanguages = localStorage.getItem("recommendations_languages");
+			const savedGenres = localStorage.getItem("recommendations_genres");
+
+			if (savedLanguages) {
+				const parsedLanguages = JSON.parse(savedLanguages);
+				if (Array.isArray(parsedLanguages)) {
+					setSelectedLanguages(parsedLanguages);
+				}
+			}
+
+			if (savedGenres) {
+				const parsedGenres = JSON.parse(savedGenres);
+				if (Array.isArray(parsedGenres)) {
+					setSelectedGenres(parsedGenres);
+				}
+			}
+		} catch (error) {
+			console.error("Error loading preferences from localStorage:", error);
+		} finally {
+			setPreferencesLoaded(true);
+		}
+	}, []);
 
 	// Check auth then fetch recommendations
 	useEffect(() => {
@@ -47,6 +78,7 @@ const RecommendationsPage = () => {
 				setIsCheckingAuth(false);
 				return;
 			}
+			if (!preferencesLoaded) return; // Wait for localStorage to load
 
 			setIsCheckingAuth(false);
 			setLoading(page === 1);
@@ -56,6 +88,12 @@ const RecommendationsPage = () => {
 				const params = new URLSearchParams();
 				if (page) params.set("page", page.toString());
 				if (selectedLanguages.length) params.set("languages", selectedLanguages.join(","));
+				if (selectedGenres.length) {
+					const genreNames = selectedGenres
+						.map((id) => genres.find((g) => g.id === id)?.name || "")
+						.filter((name) => name !== "");
+					if (genreNames.length) params.set("genres", genreNames.join(","));
+				}
 
 				const res = await fetch(`/api/recommendations?${params.toString()}`, { credentials: "include" });
 				if (!res.ok) {
@@ -82,7 +120,16 @@ const RecommendationsPage = () => {
 		};
 
 		run();
-	}, [isAuthenticated, isAuthLoading, router, page, refreshKey, selectedLanguages]);
+	}, [
+		isAuthenticated,
+		isAuthLoading,
+		router,
+		page,
+		refreshKey,
+		selectedLanguages,
+		selectedGenres,
+		preferencesLoaded,
+	]);
 
 	// Handle click outside for language dropdown
 	useEffect(() => {
@@ -90,6 +137,10 @@ const RecommendationsPage = () => {
 			if (languageDropdownRef.current && !languageDropdownRef.current.contains(event.target as Node)) {
 				// Don't close on outside click, keep selections for user to save
 				// setIsLanguageDropdownOpen(false);
+			}
+			if (genreDropdownRef.current && !genreDropdownRef.current.contains(event.target as Node)) {
+				// Don't close on outside click, keep selections for user to save
+				// setIsGenreDropdownOpen(false);
 			}
 		};
 
@@ -106,6 +157,13 @@ const RecommendationsPage = () => {
 		}
 	}, [isLanguageDropdownOpen, selectedLanguages]);
 
+	// Sync temp selections when dropdown opens
+	useEffect(() => {
+		if (isGenreDropdownOpen) {
+			setTempSelectedGenres(selectedGenres);
+		}
+	}, [isGenreDropdownOpen, selectedGenres]);
+
 	const toggleLanguage = (language: string) => {
 		setTempSelectedLanguages((prev: string[]) => {
 			let newLanguages = prev.includes(language)
@@ -115,11 +173,39 @@ const RecommendationsPage = () => {
 		});
 	};
 
+	const toggleGenre = (genreId: number) => {
+		setTempSelectedGenres((prev: number[]) => {
+			let newGenres = prev.includes(genreId) ? prev.filter((id: number) => id !== genreId) : [...prev, genreId];
+			return newGenres;
+		});
+	};
+
 	const applyLanguageFilter = () => {
 		setPage(1);
 		setRefreshKey((prev) => prev + 1);
 		setSelectedLanguages(tempSelectedLanguages);
 		setIsLanguageDropdownOpen(false);
+
+		// Save to localStorage
+		try {
+			localStorage.setItem("recommendations_languages", JSON.stringify(tempSelectedLanguages));
+		} catch (error) {
+			console.error("Error saving languages to localStorage:", error);
+		}
+	};
+
+	const applyGenreFilter = () => {
+		setPage(1);
+		setRefreshKey((prev) => prev + 1);
+		setSelectedGenres(tempSelectedGenres);
+		setIsGenreDropdownOpen(false);
+
+		// Save to localStorage
+		try {
+			localStorage.setItem("recommendations_genres", JSON.stringify(tempSelectedGenres));
+		} catch (error) {
+			console.error("Error saving genres to localStorage:", error);
+		}
 	};
 
 	const clearLanguageFilter = () => {
@@ -128,10 +214,36 @@ const RecommendationsPage = () => {
 		setPage(1);
 		setRefreshKey((prev) => prev + 1);
 		setIsLanguageDropdownOpen(false);
+
+		// Clear from localStorage
+		try {
+			localStorage.removeItem("recommendations_languages");
+		} catch (error) {
+			console.error("Error clearing languages from localStorage:", error);
+		}
+	};
+
+	const clearGenreFilter = () => {
+		setTempSelectedGenres([]);
+		setSelectedGenres([]);
+		setPage(1);
+		setRefreshKey((prev) => prev + 1);
+		setIsGenreDropdownOpen(false);
+
+		// Clear from localStorage
+		try {
+			localStorage.removeItem("recommendations_genres");
+		} catch (error) {
+			console.error("Error clearing genres from localStorage:", error);
+		}
 	};
 
 	const handleLanguageDropdown = () => {
 		setIsLanguageDropdownOpen(!isLanguageDropdownOpen);
+	};
+
+	const handleGenreDropdown = () => {
+		setIsGenreDropdownOpen(!isGenreDropdownOpen);
 	};
 
 	const handleLike = (movieId: number) => {
@@ -195,79 +307,159 @@ const RecommendationsPage = () => {
 						</button>
 					</div>
 
-					{/* Languages Filter */}
-					<div className="flex items-center gap-3">
-						<label
-							htmlFor="languages"
-							className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap"
-						>
-							Languages
-						</label>
-						<div className="relative" ref={languageDropdownRef}>
-							<button
-								type="button"
-								onClick={handleLanguageDropdown}
-								className="flex min-h-10 w-full items-center justify-between gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-left text-sm text-gray-700 shadow-sm transition-all duration-200 hover:border-gray-900 focus:border-gray-900 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-gray-600 min-w-48"
+					{/* Languages and Genres Filters */}
+					<div className="flex items-center gap-3 flex-wrap">
+						{/* Languages Filter */}
+						<div className="flex items-center gap-3">
+							<label
+								htmlFor="languages"
+								className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap"
 							>
-								<span className="truncate">
-									{selectedLanguages.length === 0
-										? "Select languages"
-										: selectedLanguages
-												.map(
-													(lang: string) =>
-														languages.find(
-															(opt: { code: string; name: string }) => opt.code === lang
-														)?.name || lang
-												)
-												.join(", ")}
-								</span>
-								<ChevronDown
-									className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${
-										isLanguageDropdownOpen ? "rotate-180" : ""
-									}`}
-								/>
-							</button>
+								Languages
+							</label>
+							<div className="relative" ref={languageDropdownRef}>
+								<button
+									type="button"
+									onClick={handleLanguageDropdown}
+									className="flex min-h-10 w-full items-center justify-between gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-left text-sm text-gray-700 shadow-sm transition-all duration-200 hover:border-gray-900 focus:border-gray-900 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-gray-600 min-w-48"
+								>
+									<span className="truncate">
+										{selectedLanguages.length === 0
+											? "Select languages"
+											: selectedLanguages
+													.map(
+														(lang: string) =>
+															languages.find(
+																(opt: { code: string; name: string }) =>
+																	opt.code === lang
+															)?.name || lang
+													)
+													.join(", ")}
+									</span>
+									<ChevronDown
+										className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${
+											isLanguageDropdownOpen ? "rotate-180" : ""
+										}`}
+									/>
+								</button>
 
-							{isLanguageDropdownOpen && (
-								<div className="absolute right-0 z-50 mt-2 w-full rounded-xl border border-gray-300 bg-white shadow-xl backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900 min-w-48 sm:w-56">
-									<div className="max-h-60 overflow-y-auto p-2">
-										{languages.map((option: { code: string; name: string }) => (
-											<div
-												key={option.code}
-												className="flex items-center rounded-lg px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors duration-150 dark:text-gray-100 dark:hover:bg-gray-800"
-												onClick={() => toggleLanguage(option.code)}
-											>
-												<input
-													type="checkbox"
-													checked={tempSelectedLanguages.includes(option.code)}
-													onChange={() => {}}
-													className="h-4 w-4 rounded border-gray-300 bg-white text-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:ring-offset-2 focus:ring-offset-white dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-offset-gray-900"
-												/>
-												<span className="ml-3 font-medium">{option.name}</span>
+								{isLanguageDropdownOpen && (
+									<div className="absolute right-0 z-50 mt-2 w-full rounded-xl border border-gray-300 bg-white shadow-xl backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900 min-w-48 sm:w-56">
+										<div className="max-h-60 overflow-y-auto p-2">
+											{languages.map((option: { code: string; name: string }) => (
+												<div
+													key={option.code}
+													className="flex items-center rounded-lg px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors duration-150 dark:text-gray-100 dark:hover:bg-gray-800"
+													onClick={() => toggleLanguage(option.code)}
+												>
+													<input
+														type="checkbox"
+														checked={tempSelectedLanguages.includes(option.code)}
+														onChange={() => {}}
+														className="h-4 w-4 rounded border-gray-300 bg-white text-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:ring-offset-2 focus:ring-offset-white dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-offset-gray-900"
+													/>
+													<span className="ml-3 font-medium">{option.name}</span>
+												</div>
+											))}
+										</div>
+										{/* Action Buttons */}
+										<div className="border-t border-gray-200 p-2 dark:border-gray-700">
+											<div className="flex gap-2">
+												<button
+													type="button"
+													onClick={clearLanguageFilter}
+													className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+												>
+													Clear
+												</button>
+												<button
+													type="button"
+													onClick={applyLanguageFilter}
+													className="flex-1 rounded-lg bg-blue-500 px-3 py-2 text-xs font-medium text-white transition hover:bg-blue-600"
+												>
+													Apply ({tempSelectedLanguages.length})
+												</button>
 											</div>
-										))}
-									</div>
-									{/* Action Buttons */}
-									<div className="border-t border-gray-200 p-2 dark:border-gray-700">
-										<div className="flex gap-2">
-											<button
-												type="button"
-												onClick={clearLanguageFilter}
-												className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-											>
-												Clear
-											</button>
-											<button
-												type="button"
-												onClick={applyLanguageFilter}
-												className="flex-1 rounded-lg bg-blue-500 px-3 py-2 text-xs font-medium text-white transition hover:bg-blue-600"
-											>
-												Apply ({tempSelectedLanguages.length})
-											</button>
 										</div>
 									</div>
-								</div>
-							)}
+								)}
+							</div>
+						</div>
+
+						{/* Genres Filter */}
+						<div className="flex items-center gap-3">
+							<label
+								htmlFor="genres"
+								className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap"
+							>
+								Genres
+							</label>
+							<div className="relative" ref={genreDropdownRef}>
+								<button
+									type="button"
+									onClick={handleGenreDropdown}
+									className="flex min-h-10 w-full items-center justify-between gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-left text-sm text-gray-700 shadow-sm transition-all duration-200 hover:border-gray-900 focus:border-gray-900 focus:outline-none dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 dark:hover:border-gray-600 min-w-48"
+								>
+									<span className="truncate">
+										{selectedGenres.length === 0
+											? "Select genres"
+											: selectedGenres
+													.map(
+														(id: number) =>
+															genres.find(
+																(opt: { id: number; name: string }) => opt.id === id
+															)?.name || id.toString()
+													)
+													.join(", ")}
+									</span>
+									<ChevronDown
+										className={`h-4 w-4 text-gray-500 transition-transform duration-200 ${
+											isGenreDropdownOpen ? "rotate-180" : ""
+										}`}
+									/>
+								</button>
+
+								{isGenreDropdownOpen && (
+									<div className="absolute right-0 z-50 mt-2 w-full rounded-xl border border-gray-300 bg-white shadow-xl backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900 min-w-48 sm:w-56">
+										<div className="max-h-60 overflow-y-auto p-2">
+											{genres.map((option: { id: number; name: string }) => (
+												<div
+													key={option.id}
+													className="flex items-center rounded-lg px-3 py-2.5 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer transition-colors duration-150 dark:text-gray-100 dark:hover:bg-gray-800"
+													onClick={() => toggleGenre(option.id)}
+												>
+													<input
+														type="checkbox"
+														checked={tempSelectedGenres.includes(option.id)}
+														onChange={() => {}}
+														className="h-4 w-4 rounded border-gray-300 bg-white text-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:ring-offset-2 focus:ring-offset-white dark:border-gray-600 dark:bg-gray-800 dark:focus:ring-offset-gray-900"
+													/>
+													<span className="ml-3 font-medium">{option.name}</span>
+												</div>
+											))}
+										</div>
+										{/* Action Buttons */}
+										<div className="border-t border-gray-200 p-2 dark:border-gray-700">
+											<div className="flex gap-2">
+												<button
+													type="button"
+													onClick={clearGenreFilter}
+													className="flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+												>
+													Clear
+												</button>
+												<button
+													type="button"
+													onClick={applyGenreFilter}
+													className="flex-1 rounded-lg bg-blue-500 px-3 py-2 text-xs font-medium text-white transition hover:bg-blue-600"
+												>
+													Apply ({tempSelectedGenres.length})
+												</button>
+											</div>
+										</div>
+									</div>
+								)}
+							</div>
 						</div>
 					</div>
 				</motion.div>

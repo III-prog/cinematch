@@ -12,10 +12,12 @@ export async function GET(request: Request) {
 		const searchParams = url.searchParams;
 		const page = searchParams.get("page");
 		const languages = searchParams.get("languages");
+		const genres = searchParams.get("genres");
 
 		const backendParams = new URLSearchParams();
 		if (page) backendParams.set("page", page);
 		if (languages) backendParams.set("languages", languages);
+		if (genres) backendParams.set("genres", genres);
 
 		const cookie = request.headers.get("cookie");
 
