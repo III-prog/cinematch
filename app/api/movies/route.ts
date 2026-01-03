@@ -14,12 +14,14 @@ export async function GET(request: Request) {
 		const page = searchParams.get("page");
 		const languages = searchParams.get("languages");
 		const search = searchParams.get("search");
+		const genres = searchParams.get("genres");
 
 		const backendParams = new URLSearchParams();
 
 		if (page) backendParams.set("page", page);
 		if (languages) backendParams.set("languages", languages);
 		if (search) backendParams.set("search", search);
+		if (genres) backendParams.set("withGenres", genres);
 
 		const cookie = request.headers.get("cookie");
 

@@ -46,8 +46,8 @@ const RecommendationsPage = () => {
 	// Load saved preferences from localStorage on mount
 	useEffect(() => {
 		try {
-			const savedLanguages = localStorage.getItem("recommendations_languages");
-			const savedGenres = localStorage.getItem("recommendations_genres");
+			const savedLanguages = localStorage.getItem("filter_languages");
+			const savedGenres = localStorage.getItem("filter_genres");
 
 			if (savedLanguages) {
 				const parsedLanguages = JSON.parse(savedLanguages);
@@ -188,7 +188,7 @@ const RecommendationsPage = () => {
 
 		// Save to localStorage
 		try {
-			localStorage.setItem("recommendations_languages", JSON.stringify(tempSelectedLanguages));
+			localStorage.setItem("filter_languages", JSON.stringify(tempSelectedLanguages));
 		} catch (error) {
 			console.error("Error saving languages to localStorage:", error);
 		}
@@ -202,7 +202,7 @@ const RecommendationsPage = () => {
 
 		// Save to localStorage
 		try {
-			localStorage.setItem("recommendations_genres", JSON.stringify(tempSelectedGenres));
+			localStorage.setItem("filter_genres", JSON.stringify(tempSelectedGenres));
 		} catch (error) {
 			console.error("Error saving genres to localStorage:", error);
 		}
@@ -217,7 +217,7 @@ const RecommendationsPage = () => {
 
 		// Clear from localStorage
 		try {
-			localStorage.removeItem("recommendations_languages");
+			localStorage.removeItem("filter_languages");
 		} catch (error) {
 			console.error("Error clearing languages from localStorage:", error);
 		}
@@ -232,7 +232,7 @@ const RecommendationsPage = () => {
 
 		// Clear from localStorage
 		try {
-			localStorage.removeItem("recommendations_genres");
+			localStorage.removeItem("filter_genres");
 		} catch (error) {
 			console.error("Error clearing genres from localStorage:", error);
 		}
