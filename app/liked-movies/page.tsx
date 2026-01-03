@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Loader2, Heart, Film } from "lucide-react";
+import { Loader2, Heart, Film, Trash2 } from "lucide-react";
 import MovieCard from "@/components/MovieCard";
 import { useAuth } from "@/src/context/AuthContext";
+import { useLike } from "@/src/context/LikeContext";
 
 type LikedMovie = {
 	id?: number;
@@ -22,6 +23,7 @@ type LikedMovie = {
 
 const LikedMoviesPage = () => {
 	const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
+	const { refetchLikes } = useLike();
 	const router = useRouter();
 
 	const [likedMovies, setLikedMovies] = useState<LikedMovie[]>([]);
@@ -31,6 +33,7 @@ const LikedMoviesPage = () => {
 	const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 	const [page, setPage] = useState(1);
 	const [totalPages, setTotalPages] = useState(1);
+	const [isDeletingAll, setIsDeletingAll] = useState(false);
 
 	useEffect(() => {
 		const run = async () => {
@@ -77,6 +80,38 @@ const LikedMoviesPage = () => {
 		run();
 	}, [isAuthenticated, isAuthLoading, router, page]);
 
+	const handleDeleteAll = async () => {
+		if (!confirm("Are you sure you want to delete all liked movies? This action cannot be undone.")) {
+			return;
+		}
+
+		setIsDeletingAll(true);
+		setError(null);
+
+		try {
+			const response = await fetch("/api/likedMovies?deleteAll=true", {
+				method: "DELETE",
+				credentials: "include",
+			});
+
+			if (!response.ok) {
+				throw new Error("Failed to delete all liked movies");
+			}
+
+			// Reset local state
+			setLikedMovies([]);
+			setPage(1);
+			setTotalPages(1);
+
+			// Refetch likes to ensure context is in sync
+			await refetchLikes();
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "Unable to delete all liked movies");
+		} finally {
+			setIsDeletingAll(false);
+		}
+	};
+
 	if (!isAuthenticated && !isAuthLoading) {
 		return null; // redirecting
 	}
@@ -97,9 +132,32 @@ const LikedMoviesPage = () => {
 			<div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 				{/* Header */}
 				<motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-					<div className="mb-2 flex items-center gap-3">
-						<h1 className="text-3xl font-bold text-gray-900 dark:text-white">Liked Movies</h1>
-						<Heart className="h-6 w-6 text-red-500" />
+					<div className="mb-4 flex items-center justify-between">
+						<div className="flex items-center gap-3">
+							<h1 className="text-3xl font-bold text-gray-900 dark:text-white">Liked Movies</h1>
+							<Heart className="h-6 w-6 text-red-500" />
+						</div>
+						{likedMovies.length > 0 && (
+							<motion.button
+								whileHover={{ scale: 1.02 }}
+								whileTap={{ scale: 0.98 }}
+								disabled={isDeletingAll}
+								onClick={handleDeleteAll}
+								className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:opacity-50"
+							>
+								{isDeletingAll ? (
+									<>
+										<Loader2 className="h-4 w-4 animate-spin" />
+										Deleting...
+									</>
+								) : (
+									<>
+										<Trash2 className="h-4 w-4" />
+										Delete All
+									</>
+								)}
+							</motion.button>
+						)}
 					</div>
 					<p className="text-gray-600 dark:text-gray-400">
 						{likedMovies.length === 0

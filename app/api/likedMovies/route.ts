@@ -50,6 +50,28 @@ export async function DELETE(request: Request) {
 	}
 
 	try {
+		const url = new URL(request.url);
+		const deleteAll = url.searchParams.get("deleteAll");
+
+		// Handle delete all liked movies
+		if (deleteAll === "true") {
+			const cookie = request.headers.get("cookie");
+
+			const backendRes = await fetch(`${BACKEND_URL}/api/movies/clear-all-likes`, {
+				method: "DELETE",
+				headers: {
+					"Content-Type": "application/json",
+					...(cookie && { cookie }),
+				},
+				credentials: "include",
+			});
+
+			const data = await backendRes.json().catch(() => null);
+
+			return NextResponse.json(data ?? { success: backendRes.ok }, { status: backendRes.status });
+		}
+
+		// Handle single movie delete (existing functionality)
 		const body = await request.json();
 		const { movieId } = body;
 
@@ -66,7 +88,7 @@ export async function DELETE(request: Request) {
 				...(cookie && { cookie }),
 			},
 			credentials: "include",
-			body: JSON.stringify({ movieId }),	
+			body: JSON.stringify({ movieId }),
 		});
 
 		const data = await backendRes.json().catch(() => null);
@@ -118,4 +140,3 @@ export async function GET(request: Request) {
 		return NextResponse.json({ error: "Internal Server Error", likes: [] }, { status: 500 });
 	}
 }
-
