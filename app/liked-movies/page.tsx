@@ -218,7 +218,7 @@ const LikedMoviesPage = () => {
 						</motion.div>
 
 						{/* Pagination */}
-						<div className="mt-6 flex items-center justify-end gap-3">
+						<div className="mt-6 flex items-center justify-start sm:justify-end gap-3">
 							<span className="text-xs text-gray-500 dark:text-gray-400">
 								Page {page} of {totalPages}
 							</span>

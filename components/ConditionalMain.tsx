@@ -14,6 +14,5 @@ export default function ConditionalMain({ children }: ConditionalMainProps) {
 		return <>{children}</>;
 	}
 
-	return <main className="mx-auto max-w-5xl px-4 py-8">{children}</main>;
+	return <main className="mx-auto max-w-5xl py-4 sm:py-6">{children}</main>;
 }
-

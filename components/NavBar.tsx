@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FC, useState, useEffect } from "react";
-import { Heart, Menu, X } from "lucide-react";
+import { Heart, Menu, X, Mail } from "lucide-react";
 import LogoutButton from "./LogoutButton";
 import { useAuth } from "@/src/context/AuthContext";
 import { useWishlist } from "@/src/context/WishlistContext";
@@ -115,12 +115,28 @@ const NavBar: FC<NavBarProps> = ({ authed }) => {
 									>
 										Recommendations
 									</Link>
+									<Link
+										href="/contact"
+										className={`${navLinkClass} ${
+											pathname === "/contact" ? "text-indigo-600" : "text-gray-700"
+										}`}
+									>
+										Contact
+									</Link>
 									<div className="ml-4">
 										<LogoutButton initialAuthed={showAuthed} />
 									</div>
 								</>
 							) : (
 								<>
+									<Link
+										href="/contact"
+										className={`${navLinkClass} ${
+											pathname === "/contact" ? "text-indigo-600" : "text-gray-700"
+										}`}
+									>
+										Contact
+									</Link>
 									<Link
 										href="/login"
 										className="rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200"
@@ -204,12 +220,28 @@ const NavBar: FC<NavBarProps> = ({ authed }) => {
 										>
 											Recommendations
 										</Link>
+										<Link
+											href="/contact"
+											className={`${mobileNavLinkClass} ${
+												pathname === "/contact" ? "text-indigo-600" : "text-gray-700"
+											}`}
+										>
+											Contact
+										</Link>
 										<div className="pt-2 border-t border-gray-200">
 											<LogoutButton initialAuthed={showAuthed} />
 										</div>
 									</>
 								) : (
 									<>
+										<Link
+											href="/contact"
+											className={`${mobileNavLinkClass} ${
+												pathname === "/contact" ? "text-indigo-600" : "text-gray-700"
+											}`}
+										>
+											Contact
+										</Link>
 										<Link
 											href="/login"
 											className="block w-full px-4 py-3 text-base font-medium text-center text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-md hover:from-indigo-700 hover:to-purple-700 transition-colors duration-200"
